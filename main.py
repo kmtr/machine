@@ -14,5 +14,3 @@ if __name__ == '__main__':
     md = MachineDriver(machine)
     server = OSCServer(md)
     server.serve_forever()
-
-    pi.stop()

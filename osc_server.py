@@ -45,8 +45,8 @@ class MachineDriver:
         print('pong')
 
     def close(self):
-        LOGGER.info('close machine pigpiopi')
-        self.machine.pigpiopi.stop()
+        LOGGER.info('close machine')
+        self.machine.close()
 
 
 if __name__ == '__main__':

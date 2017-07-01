@@ -77,6 +77,9 @@ class Machine:
     def setup(self):
         for pin in self.pins.values():
             pin.setup(self.pigpiopi)
+    
+    def close(self):
+        self.pigpiopi.stop()
 
     def set_servo_pulsewidth(self, key, pulsewidth):
         return self.pins[key].set_servo_pulsewidth(self.pigpiopi, pulsewidth)
@@ -89,4 +92,3 @@ if __name__ == '__main__':
     r = machine.set_servo_pulsewidth(0, 750)
 
     print(r)
-    pi.stop()
