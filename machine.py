@@ -5,9 +5,6 @@ try:
 except ImportError:
     import pigpio_mock as pigpio
 
-PIN = 2
-
-
 class Pin:
     '''
     It is pigpio wrapper
