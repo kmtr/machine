@@ -4,8 +4,10 @@ import sys
 
 OUTPUT = "pigpio.OUTPUT"
 
+
 class Mock(object):
     '''Mock output callee property to stderr'''
+
     def __init__(self, name=''):
         self.name = name
 

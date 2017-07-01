@@ -21,6 +21,4 @@ if __name__ == "__main__":
 
     client = udp_client.SimpleUDPClient(args.ip, args.port)
 
-    for x in range(1):
-        client.send_message("/ping", 'ping')
-        time.sleep(1)
+    client.send_message("/servo", [0, 1, 2, 3, 4, 5, 6, 7])

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import logging
 from machine import Machine
 from osc_server import OSCServer, MachineDriver
 try:
@@ -7,6 +8,8 @@ except ImportError:
     import pigpio_mock as pigpio
 
 if __name__ == '__main__':
+    logging.basicConfig(level=logging.DEBUG)
+
     pi = pigpio.pi()
     machine = Machine(pi)
     machine.setup()

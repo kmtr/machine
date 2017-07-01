@@ -1,45 +1,49 @@
 '''Machine Controler'''
 # -*- coding: utf-8 -*-
+import logging
+import time
+
 try:
     import pigpio
 except ImportError:
     import pigpio_mock as pigpio
+
+logger = logging.getLogger(__name__)
+
 
 class Pin:
     '''
     It is pigpio wrapper
     '''
 
-    def __init__(self, gpio, mode=pigpio.OUTPUT):
+    def __init__(self, gpio):
         '''
         initialize pin
         @param gpio GPIO number
-        @param mode pin mode (defualt pigpio.OUTPUT)
         '''
         self.pin = gpio
-        self.mode = mode
 
     def setup(self, pigpiopi):
         '''
         @param pigpiopi connection to pi. It is generated pigpio.pi()
         '''
-        pigpiopi.set_mode(self.pin, self.mode)
+        pigpiopi.set_mode(self.pin, pigpio.OUTPUT)
 
     def set_servo_pulsewidth(self, pigpiopi, pulsewidth):
         '''
         call pigpio.set_servo_pulsewidth.
-        if pulsewidth < 500 then set 500 and 1500 < pulsewidth set 1500.
+        if pulsewidth < 500 then set 500 and 2500 < pulsewidth set 2500.
         It is for safety.
 
         @param pigpiopi connection to pi. It is generated pigpio.pi()
         @param pulsewidth about(500 <= 1500 <= 2500)
-        @return return value of pigpiopi.set_servo_pulsewidth()
         '''
         if pulsewidth < 500:
             pulsewidth = 500
-        if pulsewidth > 1500:
-            pulsewidth = 1500
-        return pigpiopi.set_servo_pulsewidth(self.pin, pulsewidth)
+        if pulsewidth > 2500:
+            pulsewidth = 2500
+        logger.debug('GPIO={}, pulsewidth={}'.format(self.pin, pulsewidth))
+        pigpiopi.set_servo_pulsewidth(self.pin, pulsewidth)
 
 
 class Machine:
@@ -77,7 +81,7 @@ class Machine:
     def setup(self):
         for pin in self.pins.values():
             pin.setup(self.pigpiopi)
-    
+
     def close(self):
         self.pigpiopi.stop()
 
