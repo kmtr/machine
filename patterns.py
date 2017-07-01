@@ -5,8 +5,10 @@ class Pattern:
         self.degrees = degrees
 
 
+PATTERN_RESET = Pattern('reset')
+
 PATTERNS = {
-    -1: Pattern('reset'),
+    -1: PATTERN_RESET,
     0: Pattern('I', [
         0, 0, 0, 0,  # LEFT
         0, 0, 0, 0,  # RIGHT

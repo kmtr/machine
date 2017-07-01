@@ -21,4 +21,4 @@ if __name__ == "__main__":
 
     client = udp_client.SimpleUDPClient(args.ip, args.port)
 
-    client.send_message("/servo", [0, 1, 2, 3, 4, 5, 6, 7])
+    client.send_message('/ping', 'ping')

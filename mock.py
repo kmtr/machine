@@ -7,6 +7,7 @@ OUTPUT = "pigpio.OUTPUT"
 
 logger = logging.getLogger(__name__)
 
+
 class Mock(object):
     '''Mock output callee property to stderr'''
 

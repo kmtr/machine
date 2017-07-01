@@ -6,6 +6,8 @@ import signal
 from pythonosc import dispatcher
 from pythonosc import osc_server
 
+from patterns import Pattern, PATTERNS, PATTERN_RESET
+
 logger = logging.getLogger(__name__)
 
 
@@ -40,7 +42,9 @@ class MachineDriver:
     def __init__(self, machine):
         self.dispatcher = dispatcher.Dispatcher()
         self.dispatcher.map('/ping', self.pong_dispatcher)
-        self.dispatcher.map('/servo', self.servo_dispatcher)
+        self.dispatcher.map('/reset', self.reset_deipatcher)
+        self.dispatcher.map('/set', self.servo_dispatcher)
+        self.dispatcher.map('/pattern', self.pattern_dispatcher)
         self.dispatcher.set_default_handler(self.wild_card_dispatcher)
         self.machine = machine
 
@@ -54,10 +58,29 @@ class MachineDriver:
         '''pong_dispatcher for checking status'''
         print('pong')
 
+    def reset_deipatcher(self, addr, *args):
+        try:
+            self.machine.set_servo_degree_pattern(PATTERN_RESET)
+        except Exception as ex:
+            logger.error(ex)
+
     def servo_dispatcher(self, addr, *args):
         self.__debug(addr, *args)
-        for arg in args[:8]:
-            print(addr, arg)
+        pattern = Pattern(addr, args)
+        try:
+            self.machine.set_servo_degree_pattern(pattern)
+        except Exception as ex:
+            logger.error(ex)
+
+    def pattern_dispatcher(self, addr, val):
+        if val in PATTERNS:
+            pattern = PATTERNS[val]
+            try:
+                self.machine.set_servo_degree_pattern(pattern)
+            except Exception as ex:
+                logger.error(ex)
+        else:
+            logger.warn('{} key is not in PATTERNS'.format(val))
 
     def close(self):
         logger.info('close machine')
