@@ -5,7 +5,7 @@ from osc_server import OSCServer, MachineDriver
 try:
     import pigpio
 except ImportError:
-    import pigpio_mock as pigpio
+    import mock as pigpio
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
