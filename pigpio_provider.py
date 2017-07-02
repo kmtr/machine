@@ -1,8 +1,7 @@
 '''pigpio mock'''
 # -*- coding: utf-8 -*-
 import logging
-
-OUTPUT = "pigpio.OUTPUT"
+import os
 
 logger = logging.getLogger(__name__)
 
@@ -23,8 +22,24 @@ class Mock(object):
             return wildcard
 
 
+class DummyPigpio:
+    OUTPUT = 'pigpio.OUTPUT'
+    _pi = Mock('pigpio')
+
+    @classmethod
+    def pi(cls):
+        return cls._pi
+
+
+if os.uname().machine.startswith('arm'):
+    import pigpio
+    _pigpio = pigpio
+else:
+    _pigpio = DummyPigpio
+
+
 def pi():
-    '''create Mock instance
-    pi() is a dummy of pigpio.pi()
-    '''
-    return Mock('pigpio')
+    return _pigpio.pi()
+
+
+OUTPUT = _pigpio.OUTPUT

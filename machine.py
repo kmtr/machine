@@ -3,10 +3,7 @@
 import logging
 import time
 
-try:
-    import pigpio
-except ImportError:
-    import mock as pigpio
+import pigpio_provider
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +24,7 @@ class Pin:
         '''
         @param pigpiopi connection to pi. It is generated pigpio.pi()
         '''
-        pigpiopi.set_mode(self.pin, pigpio.OUTPUT)
+        pigpiopi.set_mode(self.pin, pigpio_provider.OUTPUT)
 
     def set_servo_pulsewidth(self, pigpiopi, pulsewidth):
         '''
@@ -109,10 +106,18 @@ class Machine:
 
 if __name__ == '__main__':
     from patterns import PATTERNS
+    import time
     logging.basicConfig(level=logging.DEBUG)
 
-    pi = pigpio.pi()
+    pi = pigpio_provider.pi()
     machine = Machine(pi)
+    wait = 0.5
     machine.setup()
     machine.set_servo_degree(0, 90)
-    machine.set_servo_degree_pattern(PATTERNS[-1])
+    time.sleep(wait)
+    machine.set_servo_degree(0, 0)
+    time.sleep(wait)
+    machine.set_servo_degree(0, 90)
+    time.sleep(wait)
+    machine.set_servo_degree(0, 0)
+    time.sleep(wait)

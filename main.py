@@ -5,19 +5,16 @@ import logging
 from osc_server import OSCServer, MachineDriver
 
 from machine import Machine
-try:
-    import pigpio
-except ImportError:
-    import mock as pigpio
+import pigpio_provider
 
 if __name__ == '__main__':
     argsParser = argparse.ArgumentParser(prog='machine server')
     argsParser.add_argument('--ip',
-                        default='127.0.0.1', help='The ip to listen on. (default 127.0.0.1')
+                            default='127.0.0.1', help='The ip to listen on. (default 127.0.0.1')
     argsParser.add_argument('--port',
-                        type=int, default=5005, help='The port to listen on. (default 5005)')
+                            type=int, default=5005, help='The port to listen on. (default 5005)')
     argsParser.add_argument('--debug',
-                        type=bool, default=False)
+                            type=bool, default=False)
 
     args = argsParser.parse_args()
     print(args)
@@ -26,7 +23,7 @@ if __name__ == '__main__':
     else:
         logging.basicConfig(level=logging.INFO)
 
-    pi = pigpio.pi()
+    pi = pigpio_provider.pi()
     machine = Machine(pi)
     machine.setup()
 
