@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import logging
 import time
+import threading
 
 import pigpio_provider
 
@@ -13,12 +14,15 @@ class Pin:
     It is pigpio wrapper
     '''
 
-    def __init__(self, gpio):
+    def __init__(self, gpio, wait=0.5):
         '''
         initialize pin
         @param gpio GPIO number
+        @param wait to save GPIO
         '''
+        self.wait = wait
         self.pin = gpio
+        self.sem = threading.Semaphore()
 
     def setup(self, pigpiopi):
         '''
@@ -35,12 +39,22 @@ class Pin:
         @param pigpiopi connection to pi. It is generated pigpio.pi()
         @param pulsewidth about(500 <= 1500 <= 2500)
         '''
+        pin_thread = threading.Thread(
+            target=self._set_servo_pulsewidth, args=(pigpiopi, pulsewidth))
+        pin_thread.start()
+
+    def _set_servo_pulsewidth(self, pigpiopi, pulsewidth):
         if pulsewidth < 500:
             pulsewidth = 500
         if pulsewidth > 2500:
             pulsewidth = 2500
-        logger.debug('GPIO={}, pulsewidth={}'.format(self.pin, pulsewidth))
-        return pigpiopi.set_servo_pulsewidth(self.pin, pulsewidth)
+        with self.sem:
+            logger.debug('GPIO={}, pulsewidth={} start'.format(
+                self.pin, pulsewidth))
+            pigpiopi.set_servo_pulsewidth(self.pin, pulsewidth)
+            time.sleep(self.wait)
+            logger.debug('GPIO={}, pulsewidth={} done'.format(
+                self.pin, pulsewidth))
 
 
 class Machine:
@@ -83,12 +97,17 @@ class Machine:
         self.pigpiopi.stop()
 
     def set_servo_pulsewidth(self, key, pulsewidth):
-        return self.pins[key].set_servo_pulsewidth(self.pigpiopi, pulsewidth)
+        '''
+        @param pigpiopi connection to pi. It is generated pigpio.pi()
+        @param pulsewidth 500 <= 1500 <= 2500
+        '''
+        pin = self.pins[key]
+        pin.set_servo_pulsewidth(self.pigpiopi, pulsewidth)
 
     def set_servo_degree(self, key, degree):
         '''
         @param pigpiopi connection to pi. It is generated pigpio.pi()
-        @param degree 0 <= dgredd <= 180
+        @param degree 0 <= degree <= 180
         '''
         if degree < 0:
             degree = 0
@@ -96,7 +115,7 @@ class Machine:
             degree = 180
 
         pulsewidth = degree * 11.11111 + 500
-        return self.set_servo_pulsewidth(key, round(pulsewidth))
+        self.set_servo_pulsewidth(key, round(pulsewidth))
 
     def set_servo_degree_pattern(self, pattern):
         logger.info(pattern.name)
@@ -106,18 +125,15 @@ class Machine:
 
 if __name__ == '__main__':
     from patterns import PATTERNS
-    import time
     logging.basicConfig(level=logging.DEBUG)
 
     pi = pigpio_provider.pi()
     machine = Machine(pi)
-    wait = 0.5
     machine.setup()
-    machine.set_servo_degree(0, 90)
-    time.sleep(wait)
-    machine.set_servo_degree(0, 0)
-    time.sleep(wait)
-    machine.set_servo_degree(0, 90)
-    time.sleep(wait)
-    machine.set_servo_degree(0, 0)
-    time.sleep(wait)
+
+    for i in range(2):
+        machine.set_servo_degree(0, 90)
+        machine.set_servo_degree(1, 0)
+        machine.set_servo_degree_pattern(PATTERNS[i])
+
+    time.sleep(6)
