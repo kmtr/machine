@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 import argparse
 import logging
-from machine import Machine
+
 from osc_server import OSCServer, MachineDriver
+
+from machine import Machine
 try:
     import pigpio
 except ImportError:

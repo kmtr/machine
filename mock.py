@@ -1,7 +1,6 @@
 '''pigpio mock'''
 # -*- coding: utf-8 -*-
 import logging
-import sys
 
 OUTPUT = "pigpio.OUTPUT"
 
