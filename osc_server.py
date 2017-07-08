@@ -12,18 +12,16 @@ logger = logging.getLogger(__name__)
 
 
 class OSCServer:
-
     def __init__(self, driver, ip='127.0.0.1', port=5005):
-        self._server = osc_server.ThreadingOSCUDPServer(
-            (ip, port), driver.dispatcher)
+        self._server = osc_server.ThreadingOSCUDPServer((ip, port),
+                                                        driver.dispatcher)
         self._driver = driver
 
         def sigint_func(_num, _frame):
             '''sigint_func catch SIGINT and close osc server'''
             self.close()
-            if hasattr(self._driver, 'close'):
-                self._driver.close()
             exit()
+
         signal.signal(signal.SIGINT, sigint_func)
 
     def serve_forever(self):
@@ -35,14 +33,14 @@ class OSCServer:
         '''close server'''
         logger.info("Stop serving on %s", self._server.server_address)
         self._server.server_close()
+        self._driver.close()
 
 
 class MachineDriver:
-
     def __init__(self, machine):
         self.dispatcher = dispatcher.Dispatcher()
         self.dispatcher.map('/ping', self.pong_dispatcher)
-        self.dispatcher.map('/reset', self.reset_deipatcher)
+        self.dispatcher.map('/reset', self.reset_dispatcher)
         self.dispatcher.map('/set', self.servo_dispatcher)
         self.dispatcher.map('/pattern', self.pattern_dispatcher)
         self.dispatcher.set_default_handler(self.wild_card_dispatcher)
@@ -58,7 +56,7 @@ class MachineDriver:
         '''pong_dispatcher for checking status'''
         print('pong')
 
-    def reset_deipatcher(self, addr, *args):
+    def reset_dispatcher(self, addr, *args):
         try:
             self.machine.set_servo_degree_pattern(PATTERN_RESET)
         except Exception as ex:
@@ -84,7 +82,8 @@ class MachineDriver:
 
     def close(self):
         logger.info('close machine')
-        self.machine.close()
+        if hasattr(self.machine, 'close'):
+            self.machine.close()
 
 
 if __name__ == '__main__':

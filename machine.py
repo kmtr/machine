@@ -30,7 +30,7 @@ class Pin:
         '''
         pigpiopi.set_mode(self.pin, pigpio_provider.OUTPUT)
 
-    def set_servo_pulsewidth(self, pigpiopi, pulsewidth):
+    def set_servo_pulsewidth(self, pigpiopi, pulsewidth: int):
         '''
         call pigpio.set_servo_pulsewidth.
         if pulsewidth < 500 then set 500 and 2500 < pulsewidth set 2500.
@@ -43,18 +43,18 @@ class Pin:
             target=self._set_servo_pulsewidth, args=(pigpiopi, pulsewidth))
         pin_thread.start()
 
-    def _set_servo_pulsewidth(self, pigpiopi, pulsewidth):
+    def _set_servo_pulsewidth(self, pigpiopi, pulsewidth: int):
         if pulsewidth < 500:
             pulsewidth = 500
         if pulsewidth > 2500:
             pulsewidth = 2500
         with self.sem:
-            logger.debug('GPIO={}, pulsewidth={} start'.format(
-                self.pin, pulsewidth))
+            logger.debug(
+                'GPIO={}, pulsewidth={} start'.format(self.pin, pulsewidth))
             pigpiopi.set_servo_pulsewidth(self.pin, pulsewidth)
             time.sleep(self.wait)
-            logger.debug('GPIO={}, pulsewidth={} done'.format(
-                self.pin, pulsewidth))
+            logger.debug(
+                'GPIO={}, pulsewidth={} done'.format(self.pin, pulsewidth))
 
 
 class Machine:
@@ -71,9 +71,9 @@ class Machine:
         5: 7,
         6: 8,
         7: 9,
-        8: 10,
-        9: 11,
-        10: 12,
+        # 8: 10,
+        # 9: 11,
+        # 10: 12,
     }
     '''
     KEY_GPIO_MAP represents mappings logical key ans GPIO
@@ -96,7 +96,7 @@ class Machine:
     def close(self):
         self.pigpiopi.stop()
 
-    def set_servo_pulsewidth(self, key, pulsewidth):
+    def set_servo_pulsewidth(self, key: int, pulsewidth: int):
         '''
         @param pigpiopi connection to pi. It is generated pigpio.pi()
         @param pulsewidth 500 <= 1500 <= 2500
@@ -104,7 +104,7 @@ class Machine:
         pin = self.pins[key]
         pin.set_servo_pulsewidth(self.pigpiopi, pulsewidth)
 
-    def set_servo_degree(self, key, degree):
+    def set_servo_degree(self, key: int, degree: int):
         '''
         @param pigpiopi connection to pi. It is generated pigpio.pi()
         @param degree 0 <= degree <= 180
