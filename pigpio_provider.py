@@ -2,9 +2,10 @@
 # -*- coding: utf-8 -*-
 import logging
 import os
+import pigpio_gui
 
 logger = logging.getLogger(__name__)
-
+OUTPUT = 1
 
 class Mock(object):
     '''Mock output callee property to stderr'''
@@ -23,23 +24,24 @@ class Mock(object):
 
 
 class DummyPigpio:
-    OUTPUT = 'pigpio.OUTPUT'
+    OUTPUT = 1
     _pi = Mock('pigpio')
 
     @classmethod
     def pi(cls):
         return cls._pi
 
+def pi(mode=None, guiscreen=None):
+    if mode != None and mode.upper() == 'GUI':
+        _pigpio = pigpio_gui.PigpioGUIProvider(guiscreen)
+    else:
+        if os.uname().machine.startswith('arm'):
+            import pigpio
+            _pigpio = pigpio
+        else:
+            _pigpio = DummyPigpio
+    OUTPUT = _pigpio.OUTPUT
 
-if os.uname().machine.startswith('arm'):
-    import pigpio
-    _pigpio = pigpio
-else:
-    _pigpio = DummyPigpio
-
-
-def pi():
     return _pigpio.pi()
 
 
-OUTPUT = _pigpio.OUTPUT
