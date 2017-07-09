@@ -52,11 +52,11 @@ class Stub:
         self.client = OSCClient(ip, port)
 
         self.root = tkinter.Tk()
-        self.root.geometry("400x600")
+        self.root.geometry("400x400")
         self.root.protocol("WM_DELETE_WINDOW", self.handleQuit)
         bind_event_data(self.root, Stub.eventPIGPIO, self.handlePIGPIO)
 
-        self.canvas = tkinter.Canvas(self.root, width=400, height=600)
+        self.canvas = tkinter.Canvas(self.root, width=400, height=400)
         self.screen = turtle.TurtleScreen(self.canvas)
         self.screen.tracer(0, 0)
         self.machine = Machine(pigpio_provider.pi('GUI', self.screen))
