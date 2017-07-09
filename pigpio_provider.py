@@ -14,10 +14,10 @@ class Mock(object):
 
     def __getattr__(self, attr):
         def wildcard(*args, **kwargs):
-            logger.debug('{}: {} {} {}'.format(
-                self.name, attr, args, kwargs))
+            logger.debug('%s: %s %s %s' % (self.name, attr, args, kwargs))
+
         if attr[:2] == '__' or (attr in dir(self)):
-            raise AttributeError('Attribute %r not found' % (attr,))
+            raise AttributeError('Attribute %r not found' % (attr, ))
         else:
             return wildcard
 

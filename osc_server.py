@@ -47,10 +47,10 @@ class MachineDriver:
         self.machine = machine
 
     def __debug(self, addr, *args):
-        logger.debug('{} {}'.format(addr, args))
+        logger.debug('%s %s' % (addr, args))
 
     def wild_card_dispatcher(self, addr, *args):
-        logger.warn('unknown addr: {} {}'.format(addr, args))
+        logger.warn('unknown addr: %s %s' % (addr, args))
 
     def pong_dispatcher(self, unused_addr, *args):
         '''pong_dispatcher for checking status'''
@@ -78,7 +78,7 @@ class MachineDriver:
             except Exception as ex:
                 logger.error(ex)
         else:
-            logger.warn('{} key is not in PATTERNS'.format(val))
+            logger.warn('%s key is not in PATTERNS' % val)
 
     def close(self):
         logger.info('close machine')

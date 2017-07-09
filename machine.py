@@ -49,12 +49,12 @@ class Pin:
         if pulsewidth > 2500:
             pulsewidth = 2500
         with self.sem:
-            logger.debug(
-                'GPIO={}, pulsewidth={} start'.format(self.pin, pulsewidth))
+            logger.debug('GPIO=%d, pulsewidth=%d start' % (self.pin,
+                                                           pulsewidth))
             pigpiopi.set_servo_pulsewidth(self.pin, pulsewidth)
             time.sleep(self.wait)
-            logger.debug(
-                'GPIO={}, pulsewidth={} done'.format(self.pin, pulsewidth))
+            logger.debug('GPIO=%d, pulsewidth=%d done' % (self.pin,
+                                                          pulsewidth))
 
 
 class Machine:
