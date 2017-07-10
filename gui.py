@@ -6,7 +6,6 @@ import threading
 import tkinter
 import turtle
 
-from patterns import Pattern
 from machine import Machine
 from osc_client import OSCClient
 from osc_server import MachineDriver, OSCServer
@@ -44,10 +43,6 @@ class Stub:
             return wrapper
         raise AttributeError(attr)
 
-    @property
-    def pins(self):
-        return self.machine.pins
-
     def __init__(self, ip: str, port: int):
         self.client = OSCClient(ip, port)
 
@@ -82,6 +77,8 @@ class Stub:
         frame_entry_addr = tkinter.Frame(frame_command)
         self.label_addr = tkinter.Label(frame_entry_addr, text='/addr')
         self.entry_addr = tkinter.Entry(frame_entry_addr)
+        self.entry_addr.insert(tkinter.END, '/pattern')
+        self.entry_addr.bind('<Return>', func=lambda a: self.call_command())
         self.label_addr.pack(side='left', anchor='w')
         self.entry_addr.pack(side='left', anchor='w')
         frame_entry_addr.pack()
@@ -89,6 +86,10 @@ class Stub:
         frame_entry_args = tkinter.Frame(frame_command)
         self.label_args = tkinter.Label(frame_entry_args, text='args')
         self.entry_args = tkinter.Entry(frame_entry_args)
+        self.entry_args.focus()
+        self.entry_args.insert(tkinter.END, 1)
+        self.entry_args.bind('<Return>', func=lambda a: self.call_command())
+
         self.label_args.pack(side='left', anchor='w')
         self.entry_args.pack(side='left', anchor='w')
         frame_entry_args.pack()
@@ -115,14 +116,10 @@ class Stub:
         self.machine.close()
 
     def call_ping(self):
-        self.entry_addr.delete(0, tkinter.END)
-        self.entry_addr.insert(0, '/ping')
-        self.call_command()
+        self.client.command('/ping')
 
     def call_reset(self):
-        self.entry_addr.delete(0, tkinter.END)
-        self.entry_addr.insert(0, '/reset')
-        self.call_command()
+        self.client.command('/reset')
 
     def call_pattern(self, num):
         self.client.pattern(num)
