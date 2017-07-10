@@ -12,7 +12,8 @@ class Arm:
         self.length = length
         self.child_arm = child_arm
 
-    def draw(self, kame: turtle.RawTurtle, degree, mag=1, color='black'):
+    def draw(self, kame: turtle.RawTurtle, degree, color='black'):
+        mag = PigpioGUI.mag
         kame.setheading(270)
         kame.lt(degree)
         kame.color(color)
@@ -27,7 +28,7 @@ class Leg:
     FACE_FRONT = 1
     FACE_BACK = -1
 
-    def __init__(self, height, arm_pos, arm: Arm, face, pos=(0, 0), base=0):
+    def __init__(self, height, arm_pos, arm: Arm, face, pos=(0, 0)):
         self.height = height
         self.arm_pos = arm_pos
         self.arm = arm
@@ -48,27 +49,27 @@ class Leg:
     def draw_leg(self):
         mag = PigpioGUI.mag
         self.kame.reset()
+        self.kame.width(8)
         self.kame.ht()
         self.kame.speed(0)
         self.kame.up()
-        self.kame.setpos(self.pos[0], self.pos[1] - 100)
+        self.kame.setpos(self.pos[0], self.pos[1] - 80)
         self.kame.down()
         self.kame.lt(90)
         self.kame.fd(self.height * mag)
         self.kame.bk((self.height - self.arm_pos) * mag)
         self.screen.update()
 
-    def draw_arm(self, degree, mag):
-        self.arm.draw(self.kame, degree * self.face, mag, self.arm_color)
+    def draw_arm(self, degree):
+        self.arm.draw(self.kame, degree * self.face, self.arm_color)
 
     def set_servo_pulsewidth(self, pulsewidth):
         if self.pulsewidth == pulsewidth:
             return
         self.pulsewidth = pulsewidth
-        mag = PigpioGUI.mag
         degree = round(pulsewidth - 500) / 11.11111
         self.draw_leg()
-        self.draw_arm(degree, mag)
+        self.draw_arm(degree)
         self.screen.update()
 
 
@@ -109,16 +110,20 @@ class PigpioGUIProvider:
     def buildLegs(self):
         pos = (0, 0)
         return {
+            # LEFT
             2: Leg(10, 8, Arm(5), Leg.FACE_FRONT, pos),
-            3: Leg(10, 8, Arm(5), Leg.FACE_BACK, pos),
+            3: Leg(10, 8, Arm(5), Leg.FACE_FRONT, pos),
             4: Leg(10, 8, Arm(5), Leg.FACE_FRONT, pos),
-            5: Leg(10, 8, Arm(5), Leg.FACE_BACK, pos),
-            6: Leg(10, 8, Arm(5, Arm(3)), Leg.FACE_FRONT, pos),
-            7: Leg(10, 8, Arm(5, Arm(3)), Leg.FACE_BACK, pos),
-            8: Leg(10, 8, Arm(5), Leg.FACE_FRONT, pos),
-            9: Leg(10, 8, Arm(5), Leg.FACE_BACK, pos),
-            10: Leg(10, 8, Arm(5), Leg.FACE_FRONT, pos),
-            11: Leg(10, 8, Arm(5), Leg.FACE_BACK, pos),
+            5: Leg(10, 8, Arm(5, Arm(3)), Leg.FACE_BACK, pos),
+
+            # RIGHT
+            6: Leg(10, 8, Arm(5), Leg.FACE_BACK, pos),
+            7: Leg(10, 8, Arm(5), Leg.FACE_FRONT, pos),
+            8: Leg(10, 8, Arm(5), Leg.FACE_BACK, pos),
+            9: Leg(10, 8, Arm(5, Arm(3)), Leg.FACE_BACK, pos),
+
+            # 10: Leg(10, 8, Arm(5), Leg.FACE_FRONT, pos),
+            # 11: Leg(10, 8, Arm(5), Leg.FACE_BACK, pos),
         }
 
     def pi(self):
