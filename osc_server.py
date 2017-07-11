@@ -3,6 +3,7 @@
 import logging
 import signal
 
+from machine import Machine
 from pythonosc import dispatcher
 from pythonosc import osc_server
 
@@ -37,12 +38,12 @@ class OSCServer:
 
 
 class MachineDriver:
-    def __init__(self, machine):
+    def __init__(self, machine: Machine):
         self.dispatcher = dispatcher.Dispatcher()
         self.dispatcher.map('/ping', self.pong_dispatcher)
         self.dispatcher.map('/reset', self.reset_dispatcher)
-        self.dispatcher.map('/set', self.servo_dispatcher)
         self.dispatcher.map('/pattern', self.pattern_dispatcher)
+        self.dispatcher.map('/set', self.servo_degree_dispatcher)
         self.dispatcher.set_default_handler(self.wild_card_dispatcher)
         self.machine = machine
 
@@ -62,11 +63,12 @@ class MachineDriver:
         except Exception as ex:
             logger.error(ex)
 
-    def servo_dispatcher(self, addr, *args):
+    def servo_degree_dispatcher(self, addr, *args):
         self.__debug(addr, *args)
-        pattern = Pattern(addr, args)
         try:
-            self.machine.set_servo_degree_pattern(pattern)
+            key = args[0]
+            degree = args[1]
+            self.machine.set_servo_degree(key, degree)
         except Exception as ex:
             logger.error(ex)
 

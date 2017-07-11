@@ -9,6 +9,7 @@ import turtle
 from machine import Machine
 from osc_client import OSCClient
 from osc_server import MachineDriver, OSCServer
+import pigpio_provider
 
 logger = logging.getLogger(__name__)
 
@@ -131,11 +132,17 @@ class Stub:
         if addr[0] != '/':
             addr = '/' + addr
         args = self.entry_args.get()
+        arg_value = None
         if args != '':
-            args = eval(args)
-        else:
-            args = None
-        self.client.command(addr, args)
+            print(args)
+            if args.startswith('"') and args.endswith('"'):
+                arg_value = args
+            elif len(list(filter(lambda a: args.startswith(a[0]) and args.endswith(a[1]), [('(', ')'), ('[', ']'), ('{', '}')]))) != 0:
+                arg_value = eval(args)
+            else:
+                _splited = args.split()
+                arg_value = map(lambda a: eval(a), _splited)
+        self.client.command(addr, arg_value)
 
     def set_servo_pulsewidth(self, key, pulsewidth):
         self.machine.set_servo_pulsewidth(key, pulsewidth)
@@ -148,9 +155,17 @@ class Stub:
         self.root.destroy()
 
 
+def start_gui(ip, port):
+    stub = Stub(ip, port)
+    driver = MachineDriver(stub)
+    server = OSCServer(driver, ip=ip, port=port)
+
+    stub.setup(server)
+    stub.start()
+
+
 if __name__ == '__main__':
     import argparse
-    import pigpio_provider
 
     argsParser = argparse.ArgumentParser(prog='machine server')
     argsParser.add_argument(
@@ -169,10 +184,4 @@ if __name__ == '__main__':
         logging.basicConfig(level=logging.DEBUG)
     else:
         logging.basicConfig(level=logging.INFO)
-
-    stub = Stub(args.ip, args.port)
-    driver = MachineDriver(stub)
-    server = OSCServer(driver, ip=args.ip, port=args.port)
-
-    stub.setup(server)
-    stub.start()
+    start_gui(args.ip, args.port)

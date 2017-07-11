@@ -4,8 +4,20 @@ import logging
 
 from osc_server import OSCServer, MachineDriver
 
-from machine import Machine
 import pigpio_provider
+from machine import Machine
+from gui import start_gui
+
+
+def start(ip, addr):
+    pi = pigpio_provider.pi()
+    machine = Machine(pi)
+    machine.setup()
+
+    md = MachineDriver(machine)
+    server = OSCServer(md, ip=args.ip, port=args.port)
+    server.serve_forever()
+
 
 if __name__ == '__main__':
     argsParser = argparse.ArgumentParser(prog='machine server')
@@ -18,6 +30,7 @@ if __name__ == '__main__':
         type=int,
         default=5005,
         help='The port to listen on. (default 5005)')
+    argsParser.add_argument('--gui', type=bool, default=False)
     argsParser.add_argument('--debug', type=bool, default=False)
 
     args = argsParser.parse_args()
@@ -26,10 +39,7 @@ if __name__ == '__main__':
     else:
         logging.basicConfig(level=logging.INFO)
 
-    pi = pigpio_provider.pi()
-    machine = Machine(pi)
-    machine.setup()
-
-    md = MachineDriver(machine)
-    server = OSCServer(md, ip=args.ip, port=args.port)
-    server.serve_forever()
+    if args.gui:
+        start_gui(args.ip, args.port)
+    else:
+        start(args.ip, args.port)

@@ -13,11 +13,16 @@ class OSCClient:
         self.client = udp_client.SimpleUDPClient(ip, port)
 
     def command(self, addr, arg_value=None, arg_type=None):
+        logger.debug("command: %s %s" % (arg_value, arg_type))
         builder = osc_message_builder.OscMessageBuilder(addr)
         if arg_value != None:
-            builder.add_arg(arg_value, arg_type)
+            if type(arg_value) != str and getattr(arg_value, '__iter__', False):
+                for arg in arg_value:
+                    builder.add_arg(arg, arg_type)
+            else:
+                builder.add_arg(arg_value, arg_type)
         cmd = builder.build()
-        logger.debug('%s %s' % (cmd.address, cmd.params))
+        logger.debug('osc send: %s %s' % (cmd.address, cmd.params))
         self.client.send(cmd)
 
     def pattern(self, num):
